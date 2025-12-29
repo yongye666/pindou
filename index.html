@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼豆像素画生成器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>拼豆像素画生成器</h1>
+            <p class="subtitle">将您的图片转换为适合拼豆创作的像素画</p>
+        </header>
+
+        <main class="main-content">
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">拖拽图片到此处或点击上传</p>
+                    <p class="upload-hint">支持 JPG、PNG、GIF 格式</p>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                </div>
+            </section>
+
+            <section class="editor-section" id="editorSection" style="display: none;">
+                <div class="controls-panel">
+                    <h2>调整参数</h2>
+                    
+                    <div class="control-group">
+                        <label for="pixelSize">
+                            像素大小: <span id="pixelSizeValue">10</span>px
+                        </label>
+                        <input type="range" id="pixelSize" min="2" max="50" value="10">
+                        <div class="range-labels">
+                            <span>精细</span>
+                            <span>粗糙</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="brightness">
+                            亮度: <span id="brightnessValue">100</span>%
+                        </label>
+                        <input type="range" id="brightness" min="50" max="150" value="100">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="contrast">
+                            对比度: <span id="contrastValue">100</span>%
+                        </label>
+                        <input type="range" id="contrast" min="50" max="150" value="100">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="saturation">
+                            饱和度: <span id="saturationValue">100</span>%
+                        </label>
+                        <input type="range" id="saturation" min="0" max="200" value="100">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="exportSize">
+                            导出尺寸:
+                        </label>
+                        <select id="exportSize">
+                            <option value="1">原始尺寸</option>
+                            <option value="2">2倍放大</option>
+                            <option value="3" selected>3倍放大</option>
+                            <option value="5">5倍放大</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="showGrid">
+                            显示网格线
+                        </label>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="showOriginal" checked>
+                            显示原图对比
+                        </label>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="usePerlerColors">
+                            使用拼豆色板
+                        </label>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="showColorCodes">
+                            显示色号
+                        </label>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="resetBtn" class="btn btn-secondary">重置参数</button>
+                        <button id="exportBtn" class="btn btn-primary">导出图片</button>
+                    </div>
+                </div>
+
+                <div class="preview-panel">
+                    <h2>预览效果</h2>
+                    <div class="preview-container">
+                        <div class="preview-item" id="originalPreview">
+                            <h3>原图</h3>
+                            <canvas id="originalCanvas"></canvas>
+                        </div>
+                        <div class="preview-item" id="pixelPreview">
+                            <h3>像素画</h3>
+                            <canvas id="pixelCanvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="image-info">
+                        <span id="imageDimensions"></span>
+                        <span id="pixelDimensions"></span>
+                    </div>
+                    <div class="color-legend" id="colorLegend" style="display: none;">
+                        <h4>使用的拼豆色号</h4>
+                        <div class="color-legend-grid" id="colorLegendGrid"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>使用说明：上传图片 → 调整参数 → 预览效果 → 导出图片</p>
+        </footer>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>处理中...</p>
+    </div>
+
+    <script src="colorPalette.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
