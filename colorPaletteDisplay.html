@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼豆色板展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #808080;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .group-section {
+            margin-bottom: 40px;
+        }
+
+        .group-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #808080 0%, #606060 100%);
+            color: white;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+
+        .color-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 50px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 2px solid #fff;
+        }
+
+        .color-info {
+            text-align: center;
+        }
+
+        .color-code {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 3px;
+            background: #808080;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .color-name {
+            font-size: 14px;
+            color: #555;
+            margin-top: 6px;
+        }
+
+        .color-rgb {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .nav-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #808080 0%, #606060 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(128, 128, 128, 0.3);
+            min-width: 50px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(128, 128, 128, 0.4);
+        }
+
+        .nav-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .current-group-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #333;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #808080 0%, #606060 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(128, 128, 128, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(128, 128, 128, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .nav-button {
+                padding: 8px 15px;
+                font-size: 13px;
+                min-width: 45px;
+            }
+
+            .color-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .current-group-title {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-buttons {
+                gap: 8px;
+            }
+
+            .nav-button {
+                padding: 6px 12px;
+                font-size: 12px;
+                min-width: 40px;
+            }
+
+            .color-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .current-group-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 拼豆色板展示</h1>
+            <p>查看所有可用的拼豆颜色，按字母分组排列</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalColors">0</div>
+                <div class="stat-label">总颜色数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalGroups">0</div>
+                <div class="stat-label">颜色分组</div>
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <div class="nav-buttons" id="navButtons"></div>
+        </div>
+
+        <div class="current-group-title" id="currentGroupTitle"></div>
+        <div class="color-grid" id="colorGrid"></div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="index.html" class="back-button">← 返回首页</a>
+        </div>
+    </div>
+
+    <script src="colorPalette.js"></script>
+    <script>
+        let currentGroup = null;
+        let groupedColors = {};
+
+        function groupColorsByLetter(colors) {
+            const groups = {};
+            
+            colors.forEach(color => {
+                const letter = color.code.charAt(0);
+                if (!groups[letter]) {
+                    groups[letter] = [];
+                }
+                groups[letter].push(color);
+            });
+            
+            return groups;
+        }
+
+        function createColorCard(color) {
+            const card = document.createElement('div');
+            card.className = 'color-card';
+            
+            const preview = document.createElement('div');
+            preview.className = 'color-preview';
+            preview.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+            
+            const info = document.createElement('div');
+            info.className = 'color-info';
+            
+            const code = document.createElement('div');
+            code.className = 'color-code';
+            code.textContent = color.code;
+            
+            const name = document.createElement('div');
+            name.className = 'color-name';
+            name.textContent = color.name;
+            
+            const rgb = document.createElement('div');
+            rgb.className = 'color-rgb';
+            rgb.textContent = `RGB(${color.r}, ${color.g}, ${color.b})`;
+            
+            info.appendChild(code);
+            info.appendChild(name);
+            info.appendChild(rgb);
+            
+            card.appendChild(preview);
+            card.appendChild(info);
+            
+            return card;
+        }
+
+        function renderNavButtons() {
+            const navContainer = document.getElementById('navButtons');
+            const sortedLetters = Object.keys(groupedColors).sort();
+            
+            sortedLetters.forEach(letter => {
+                const button = document.createElement('button');
+                button.className = 'nav-button';
+                button.textContent = letter;
+                button.onclick = () => switchGroup(letter);
+                navContainer.appendChild(button);
+            });
+        }
+
+        function switchGroup(letter) {
+            currentGroup = letter;
+            
+            // 更新按钮状态
+            const buttons = document.querySelectorAll('.nav-button');
+            buttons.forEach(btn => {
+                if (btn.textContent === letter) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // 更新标题
+            const title = document.getElementById('currentGroupTitle');
+            title.textContent = `${letter} 组 (${groupedColors[letter].length} 种颜色)`;
+            
+            // 渲染颜色卡片
+            const grid = document.getElementById('colorGrid');
+            grid.innerHTML = '';
+            
+            groupedColors[letter].forEach(color => {
+                const card = createColorCard(color);
+                grid.appendChild(card);
+            });
+        }
+
+        function renderColorPalette() {
+            groupedColors = groupColorsByLetter(PERLER_BEAD_COLORS);
+            
+            // 更新统计信息
+            document.getElementById('totalColors').textContent = PERLER_BEAD_COLORS.length;
+            document.getElementById('totalGroups').textContent = Object.keys(groupedColors).length;
+            
+            // 渲染导航按钮
+            renderNavButtons();
+            
+            // 默认显示第一个组
+            const sortedLetters = Object.keys(groupedColors).sort();
+            if (sortedLetters.length > 0) {
+                switchGroup(sortedLetters[0]);
+            }
+        }
+
+        // 页面加载完成后渲染
+        document.addEventListener('DOMContentLoaded', renderColorPalette);
+    </script>
+</body>
+</html>
