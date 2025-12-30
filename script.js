@@ -236,8 +236,10 @@ class PixelArtGenerator {
             
             tempCtx.putImageData(imageData, 0, 0);
             
+            this.pixelCtx.save();
             this.pixelCtx.imageSmoothingEnabled = false;
             this.pixelCtx.drawImage(tempCanvas, 0, 0, smallWidth, smallHeight, 0, 0, width, height);
+            this.pixelCtx.restore();
             
             if (this.settings.showGrid) {
                 this.drawGrid(width, height, pixelSize);
@@ -263,8 +265,19 @@ class PixelArtGenerator {
         
         for (const color of this.pixelColors) {
             if (color.code) {
-                if (!usedColors.has(color.code)) {
-                    usedColors.set(color.code, color);
+                if (usedColors.has(color.code)) {
+                    // 颜色已存在，增加数量
+                    const existing = usedColors.get(color.code);
+                    usedColors.set(color.code, {
+                        ...existing,
+                        count: existing.count + 1
+                    });
+                } else {
+                    // 新颜色，初始数量为1
+                    usedColors.set(color.code, {
+                        ...color,
+                        count: 1
+                    });
                 }
             }
         }
@@ -295,9 +308,14 @@ class PixelArtGenerator {
                 name.className = 'color-name';
                 name.textContent = color.name;
                 
+                const count = document.createElement('div');
+                count.className = 'color-count';
+                count.textContent = `颗数: ${color.count}`;
+                
                 item.appendChild(swatch);
                 item.appendChild(code);
                 item.appendChild(name);
+                item.appendChild(count);
                 legendGrid.appendChild(item);
             }
         } else {
@@ -331,6 +349,9 @@ class PixelArtGenerator {
     }
 
     drawGrid(width, height, pixelSize) {
+        // 保存当前canvas状态
+        this.pixelCtx.save();
+        
         this.pixelCtx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
         this.pixelCtx.lineWidth = 1;
         
@@ -347,10 +368,16 @@ class PixelArtGenerator {
             this.pixelCtx.lineTo(width, y);
             this.pixelCtx.stroke();
         }
+        
+        // 恢复canvas状态
+        this.pixelCtx.restore();
     }
 
     drawColorCodes(width, height, pixelSize, smallWidth, smallHeight) {
-        const fontSize = Math.max(8, Math.floor(pixelSize / 2));
+        // 保存当前canvas状态
+        this.pixelCtx.save();
+        
+        const fontSize = Math.max(6, Math.floor(pixelSize / 3));
         this.pixelCtx.font = `${fontSize}px Arial`;
         this.pixelCtx.textAlign = 'center';
         this.pixelCtx.textBaseline = 'middle';
@@ -367,12 +394,22 @@ class PixelArtGenerator {
                     const brightness = (color.r * 299 + color.g * 587 + color.b * 114) / 1000;
                     const textColor = brightness > 128 ? '#000000' : '#FFFFFF';
                     
-                    this.pixelCtx.fillStyle = textColor;
+                    // 添加文字描边以提高清晰度
+                    this.pixelCtx.strokeStyle = textColor;
+                    this.pixelCtx.lineWidth = 0.5;
                     
                     if (this.settings.usePerlerColors && color.code) {
+                        // 先绘制描边
+                        this.pixelCtx.strokeText(color.code, centerX, centerY);
+                        // 再绘制填充
+                        this.pixelCtx.fillStyle = textColor;
                         this.pixelCtx.fillText(color.code, centerX, centerY);
                     } else {
                         const hexCode = this.rgbToHex(color.r, color.g, color.b);
+                        // 先绘制描边
+                        this.pixelCtx.strokeText(hexCode, centerX, centerY);
+                        // 再绘制填充
+                        this.pixelCtx.fillStyle = textColor;
                         this.pixelCtx.fillText(hexCode, centerX, centerY);
                     }
                     
@@ -380,6 +417,9 @@ class PixelArtGenerator {
                 }
             }
         }
+        
+        // 恢复canvas状态
+        this.pixelCtx.restore();
     }
 
     rgbToHex(r, g, b) {
@@ -501,6 +541,8 @@ class PixelArtGenerator {
                 exportCtx.drawImage(tempCanvas, 0, 0, smallWidth, smallHeight, 0, 0, exportWidth, exportHeight);
                 
                 if (this.settings.showGrid) {
+                    exportCtx.save();
+                    
                     const gridPixelSize = pixelSize * exportSize;
                     exportCtx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
                     exportCtx.lineWidth = Math.max(1, Math.floor(exportSize / 2));
@@ -518,6 +560,8 @@ class PixelArtGenerator {
                         exportCtx.lineTo(exportWidth, y);
                         exportCtx.stroke();
                     }
+                    
+                    exportCtx.restore();
                 }
                 
                 if (this.settings.showColorCodes) {
@@ -539,7 +583,10 @@ class PixelArtGenerator {
     }
 
     drawExportColorCodes(ctx, width, height, pixelSize, smallWidth, smallHeight, colors) {
-        const fontSize = Math.max(10, Math.floor(pixelSize / 2.5));
+        // 保存当前canvas状态
+        ctx.save();
+        
+        const fontSize = Math.max(8, Math.floor(pixelSize / 3));
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -556,12 +603,22 @@ class PixelArtGenerator {
                     const brightness = (color.r * 299 + color.g * 587 + color.b * 114) / 1000;
                     const textColor = brightness > 128 ? '#000000' : '#FFFFFF';
                     
-                    ctx.fillStyle = textColor;
+                    // 添加文字描边以提高清晰度
+                    ctx.strokeStyle = textColor;
+                    ctx.lineWidth = 1;
                     
                     if (this.settings.usePerlerColors && color.code) {
+                        // 先绘制描边
+                        ctx.strokeText(color.code, centerX, centerY);
+                        // 再绘制填充
+                        ctx.fillStyle = textColor;
                         ctx.fillText(color.code, centerX, centerY);
                     } else {
                         const hexCode = this.rgbToHex(color.r, color.g, color.b);
+                        // 先绘制描边
+                        ctx.strokeText(hexCode, centerX, centerY);
+                        // 再绘制填充
+                        ctx.fillStyle = textColor;
                         ctx.fillText(hexCode, centerX, centerY);
                     }
                     
@@ -569,6 +626,9 @@ class PixelArtGenerator {
                 }
             }
         }
+        
+        // 恢复canvas状态
+        ctx.restore();
     }
 
     showLoading(show) {
